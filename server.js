@@ -2,6 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var ObjectID = mongodb.ObjectID;
+var cors = require('cors');
 
 var ACCOMMODATIONS_COLLECTION = "accommodations";
 
@@ -29,22 +30,46 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
     });
 });
 
-// CONTACTS API ROUTES BELOW
+var allowedOrigins = [
+    'http://localhost:4200',
+    'https://yulia-tue.github.io'
+];
+app.use(cors({
+    origin: function(origin, callback){
+        // allow requests with no origin
+        // (like mobile apps or curl requests)
+        if(!origin) return callback(null, true);
+        if(allowedOrigins.indexOf(origin) === -1){
+            var msg = 'The CORS policy for this site does not ' +
+                'allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+}));
+
+// API ROUTES BELOW
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {
     console.log("ERROR: " + reason);
     res.status(code || 500).json({"error": message});
 }
 
-/*  "/api/contacts"
- *    GET: finds all contacts
- *    POST: creates a new contact
- */
-
 app.get("/api/accommodations", function(req, res) {
     db.collection(ACCOMMODATIONS_COLLECTION).find({}).toArray(function(err, docs) {
         if (err) {
             handleError(res, err.message, "Failed to get accommodations.");
+        } else {
+            res.status(200).json(docs);
+        }
+    });
+});
+
+app.get("/api/top_accommodations", function(req, res) {
+    const maxNumber = req.params.maxNumber ? req.params.maxNumber : 12;
+    db.collection(ACCOMMODATIONS_COLLECTION).find({}).limit(maxNumber).toArray(function(err, docs) {
+        if (err) {
+            handleError(res, err.message, "Failed to get " + maxNumber + " top accommodations.");
         } else {
             res.status(200).json(docs);
         }
