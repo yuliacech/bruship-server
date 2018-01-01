@@ -5,6 +5,7 @@ var ObjectID = mongodb.ObjectID;
 var cors = require('cors');
 
 var ACCOMMODATIONS_COLLECTION = "accommodations";
+var SUBSCRIBERS_COLLECTION = "subscribers";
 
 var app = express();
 app.use(bodyParser.json());
@@ -40,7 +41,7 @@ app.use(cors({
         if(!origin) return callback(null, true);
         if(allowedOrigins.indexOf(origin) === -1){
             var msg = 'The CORS policy for this site does not ' +
-                'allow access from the specified Origin.';
+                'allow access from the specified origin: ' + origin;
             return callback(new Error(msg), false);
         }
         return callback(null, true);
@@ -71,6 +72,28 @@ app.get("/api/top_accommodations", function(req, res) {
             handleError(res, err.message, "Failed to get " + maxNumber + " top accommodations.");
         } else {
             res.status(200).json(docs);
+        }
+    });
+});
+
+app.post("/api/subscribers", function(req, res) {
+    if (!req.body.email) {
+        handleError(res, "Invalid user input", "Must provide an email.", 400);
+    }
+
+    var origin = req.headers.origin;
+    var now = new Date();
+    var newSubscriber = {
+        email: req.body.email,
+        subscription_date: now,
+        origin_url: origin
+    };
+
+    db.collection(SUBSCRIBERS_COLLECTION).insertOne(newSubscriber, function(err, doc) {
+        if (err) {
+            handleError(res, err.message, "Failed to create new subscriber.");
+        } else {
+            res.status(201).json(doc.ops[0]);
         }
     });
 });
