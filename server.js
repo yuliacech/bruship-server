@@ -11,7 +11,6 @@ app.use(bodyParser.json());
 
 // Create a database variable outside of the database connection callback to reuse the connection pool in your app.
 var db;
-console.log(process.env.MONGODB_URI);
 // Connect to the database before starting the application server.
 mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
     if (err) {
@@ -32,7 +31,7 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
 
 var allowedOrigins = [
     'http://localhost:4200',
-    'https://yulia-tue.github.io'
+    'https://solid-flow.github.io'
 ];
 app.use(cors({
     origin: function(origin, callback){
