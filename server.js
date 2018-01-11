@@ -32,7 +32,8 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
 
 var allowedOrigins = [
     'http://localhost:4200',
-    'https://solid-flow.github.io'
+    'https://solid-flow.github.io',
+    'http://bruship.solid-flow.com'
 ];
 app.use(cors({
     origin: function(origin, callback){
