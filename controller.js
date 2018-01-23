@@ -1,6 +1,5 @@
 const Dropbox = require('dropbox');
 const dbx = new Dropbox({ accessToken: process.env.DROPBOX_API_KEY });
-const mongodb = require("mongodb");
 
 
 const helper = require('./helper');
@@ -63,7 +62,7 @@ const reviewsWithPhotos =  (req, res) => {
             return res.status(201).json({reviewSlug: reviewSlug});
         })
         .catch((error) => {
-            return handleError(res, err.message, "Failed to find existing accommodation while submitting review.");
+            return handleError(res, error, "Failed to find existing accommodation while submitting review.");
         });
 
 };
@@ -81,14 +80,15 @@ const findOrInsertAccommodation = (address, userID) => {
                     .then((googleData) => {
                         if (googleData && googleData.json && googleData.json.results && googleData.json.results.length > 0) {
                             return Promise.resolve({
-                                latitude: googleData.json.results[0].geometry.location.lat,
                                 longitude: googleData.json.results[0].geometry.location.lng,
+                                latitude: googleData.json.results[0].geometry.location.lat
                             });
                         } else {
                             return Promise.resolve('No geo coordinates found');
                         }
                     })
                     .catch(googleError => {
+                        console.log(googleError);
                         return Promise.resolve('Error with geo coordinates');
                     })
                     .then(location => {
@@ -181,12 +181,13 @@ function handleError(res, reason, message, code) {
 }
 
 const getAccommodations = (req, res) => {
-    db.findAccommodations()
+    const limit = parseInt(req.params.limit);
+    db.findAccommodations (limit)
         .then (docs => {
             return res.status(200).json(docs);
         })
         .catch(error => {
-            return handleError(res, err.message, "Failed to get accommodations.");
+            return handleError(res, error, "Failed to get accommodations.");
         })
 };
 
@@ -208,7 +209,7 @@ const addSubscriber = (req, res) => {
             return res.status(201).json(doc.ops[0]);
         })
         .catch(error => {
-            return handleError(res, err.message, "Failed to create new subscriber.");
+            return handleError(res, error, "Failed to create new subscriber.");
         });
 };
 
@@ -218,13 +219,28 @@ const getReviews = (req, res) => {
             return res.status(200).json(docs);
         })
         .catch(error => {
-            handleError(res, err.message, "Failed to get reviews for user " + req.user.sub);
+            return handleError(res, error, "Failed to get reviews for user " + req.user.sub);
         });
+};
+
+const findAccommodationsByCoordinates = (req, res) => {
+    const longitude = req.params.longitude;
+    const latitude = req.params.latitude;
+
+    return db.findAccommodationsByCoordinates({longitude: longitude, latitude: latitude})
+        .then(docs => {
+            return res.status(200).json(docs);
+        })
+        .catch(error => {
+            return handleError(res, error, 'Failed to get accommodations near to coordinates ' + longitude + ' and ' + latitude);
+        });
+
 };
 
 module.exports = {
     reviewsWithPhotos: reviewsWithPhotos,
     getAccommodations: getAccommodations,
     addSubscriber: addSubscriber,
-    getReviews: getReviews
+    getReviews: getReviews,
+    findAccommodationsByCoordinates: findAccommodationsByCoordinates
 };

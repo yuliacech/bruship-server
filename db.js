@@ -1,16 +1,29 @@
 const mongodb = require('mongodb');
 let db;
+const BRUSHIP_DB = 'bruship';
 const REVIEWS_COLLECTION = 'reviews';
 const ACCOMMODATIONS_COLLECTION = 'accommodations';
 const SUBSCRIBERS_COLLECTION = 'subscribers';
 
+const BRUSSELS_LOCATION_QUERY =
+    {
+        'location':
+            {
+                $near: {
+                    $geometry:
+                        {type: "Point", coordinates: [4.351710300000036, 50.8503396]},
+                    $maxDistance: 20000
+                }
+            }
+    };
+
 mongodb.MongoClient.connect(process.env.MONGODB_URI)
-    .then((database) => {
-        db = database;
+    .then((client) => {
+        db = client.db(BRUSHIP_DB);
         console.log("Database connection ready");
     })
     .catch((error) => {
-        console.log(err);
+        console.log(error);
         process.exit(1);
     });
 
@@ -23,7 +36,7 @@ const findAccommodationByAddress = (address) => {
 };
 
 const insertAccommodation = (newAccommodation) => {
-  return db.collection(ACCOMMODATIONS_COLLECTION).insertOne(newAccommodation);
+    return db.collection(ACCOMMODATIONS_COLLECTION).insertOne(newAccommodation);
 };
 
 const insertReview = (newReview) => {
@@ -34,8 +47,9 @@ const updateAccommodation = (id, updateProperties) => {
     return db.collection(ACCOMMODATIONS_COLLECTION).updateOne({_id: id}, {$set: updateProperties});
 };
 
-const findAccommodations = () => {
-    return db.collection(ACCOMMODATIONS_COLLECTION).find({}).toArray();
+const findAccommodations = (limit) => {
+
+    return db.collection(ACCOMMODATIONS_COLLECTION).find(BRUSSELS_LOCATION_QUERY).sort({rating: -1}).limit(limit).toArray();
 };
 
 const insertSubscriber = (newSubscriber) => {
@@ -47,6 +61,26 @@ const findReviewsByUserID = (userID) => {
     return db.collection(REVIEWS_COLLECTION).find(query).toArray();
 };
 
+const findAccommodationsByCoordinates = (location) => {
+    const longitude = parseFloat(location.longitude);
+    const latitude = parseFloat(location.latitude);
+
+    const maxDistanceInMeters = 500;
+    const query =
+        {
+            'location':
+                {
+                    $near: {
+                        $geometry:
+                            {type: "Point", coordinates: [longitude, latitude]},
+                        $maxDistance: maxDistanceInMeters
+                    }
+                }
+        };
+
+    return db.collection(ACCOMMODATIONS_COLLECTION).find(query).toArray();
+};
+
 module.exports = {
     findAccommodationByAddressSlug: findAccommodationByAddressSlug,
     findAccommodationByAddress: findAccommodationByAddress,
@@ -55,5 +89,6 @@ module.exports = {
     updateAccommodation: updateAccommodation,
     findAccommodations: findAccommodations,
     insertSubscriber: insertSubscriber,
-    findReviewsByUserID: findReviewsByUserID
+    findReviewsByUserID: findReviewsByUserID,
+    findAccommodationsByCoordinates: findAccommodationsByCoordinates
 };

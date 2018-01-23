@@ -52,13 +52,14 @@ const checkJwt = jwt({
     algorithms: ['RS256']
 });
 
-app.get("/api/accommodations", jsonParser, controller.getAccommodations);
-app.get("/api/top_accommodations", jsonParser, controller.getAccommodations);
+app.get("/api/accommodations/limit/:limit", jsonParser, controller.getAccommodations);
 
 app.post("/api/subscribers", jsonParser, controller.addSubscriber);
 
 app.get("/api/user/reviews", checkJwt, jsonParser,  controller.getReviews);
 
 app.post('/api/user/reviews_with_photos', checkJwt, upload.array('files', 3), controller.reviewsWithPhotos);
+
+app.get('/api/search/longitude/:longitude/latitude/:latitude', controller.findAccommodationsByCoordinates);
 
 module.exports = app;
