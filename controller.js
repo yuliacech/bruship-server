@@ -237,9 +237,37 @@ const findAccommodationsByCoordinates = (req, res) => {
 
 };
 
+const getAccommodationByAddressSlug = (req, res) => {
+    const slug = req.params.slug;
+
+    return db.findAccommodationByAddressSlug(slug)
+        .then(docs => {
+            return res.status(200).json(docs);
+        })
+        .catch(error => {
+            return handleError(res, error, 'Failed to get accommodation by addressSlug ' + slug);
+        });
+
+};
+
+const getReviewByID = (req, res) => {
+    const id = req.params.id;
+
+    return db.findReviewByID(id)
+        .then(docs => {
+            return res.status(200).json(docs);
+        })
+        .catch(error => {
+            return handleError(res, error, 'Failed to get review by id ' + id);
+        });
+
+};
+
 module.exports = {
     reviewsWithPhotos: reviewsWithPhotos,
     getAccommodations: getAccommodations,
+    getAccommodationByAddressSlug: getAccommodationByAddressSlug,
+    getReviewByID: getReviewByID,
     addSubscriber: addSubscriber,
     getReviews: getReviews,
     findAccommodationsByCoordinates: findAccommodationsByCoordinates

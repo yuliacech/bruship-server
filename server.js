@@ -53,6 +53,9 @@ const checkJwt = jwt({
 });
 
 app.get("/api/accommodations/limit/:limit", jsonParser, controller.getAccommodations);
+app.get("/api/accommodations/addressSlug/:slug", jsonParser, controller.getAccommodationByAddressSlug);
+
+app.get("/api/reviews/:id", jsonParser, controller.getReviewByID);
 
 app.post("/api/subscribers", jsonParser, controller.addSubscriber);
 

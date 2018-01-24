@@ -1,5 +1,6 @@
 const mongodb = require('mongodb');
 let db;
+const ObjectID = mongodb.ObjectID;
 const BRUSHIP_DB = 'bruship';
 const REVIEWS_COLLECTION = 'reviews';
 const ACCOMMODATIONS_COLLECTION = 'accommodations';
@@ -28,7 +29,11 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI)
     });
 
 const findAccommodationByAddressSlug = (addressSlug) => {
-    return db.collection(REVIEWS_COLLECTION).findOne({addressSlug: addressSlug});
+    return db.collection(ACCOMMODATIONS_COLLECTION).findOne({addressSlug: addressSlug});
+};
+
+const findReviewByID = (id) => {
+    return db.collection(REVIEWS_COLLECTION).findOne({_id: new ObjectID(id)});
 };
 
 const findAccommodationByAddress = (address) => {
@@ -84,6 +89,7 @@ const findAccommodationsByCoordinates = (location) => {
 module.exports = {
     findAccommodationByAddressSlug: findAccommodationByAddressSlug,
     findAccommodationByAddress: findAccommodationByAddress,
+    findReviewByID: findReviewByID,
     insertAccommodation: insertAccommodation,
     insertReview: insertReview,
     updateAccommodation: updateAccommodation,
