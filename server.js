@@ -7,7 +7,6 @@ const upload = multer({ storage: storage });
 
 const cors = require('cors');
 const jwt = require('express-jwt');
-const jwtAuthz = require('express-jwt-authz');
 const jwksRsa = require('jwks-rsa');
 
 const controller = require('./controller');
@@ -25,8 +24,7 @@ const server = app.listen(process.env.PORT || 8080, function () {
 
 const allowedOrigins = [
     'http://localhost:4200',
-    'https://solid-flow.github.io',
-    'http://bruship.solid-flow.com'
+    'https://bruship.yuliacech.com'
 ];
 app.use(cors({
     origin: function(origin, callback){
@@ -45,10 +43,10 @@ const checkJwt = jwt({
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: 'https://solid-flow.eu.auth0.com/.well-known/jwks.json'
+        jwksUri: 'https://yuliacech.auth0.com/.well-known/jwks.json'
     }),
     audience: 'bruship-server/api',
-    issuer: 'https://solid-flow.eu.auth0.com/',
+    issuer: 'https://yuliacech.auth0.com/',
     algorithms: ['RS256']
 });
 
