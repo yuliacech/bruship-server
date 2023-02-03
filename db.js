@@ -21,6 +21,7 @@ const BRUSSELS_LOCATION_QUERY =
 mongodb.MongoClient.connect(process.env.MONGODB_URI)
     .then((client) => {
         db = client.db(BRUSHIP_DB);
+        db.collection(ACCOMMODATIONS_COLLECTION).createIndex({location:"2dsphere"});
         console.log("Database connection ready");
     })
     .catch((error) => {
