@@ -12,10 +12,12 @@ const jwksRsa = require('jwks-rsa');
 const controller = require('./controller');
 
 const app = express();
+/* Uncomment this block for debugging
 app.use((req, res, next) => {
-    //console.log(req);
+    console.log(req);
     next();
 });
+ */
 
 const server = app.listen(process.env.PORT || 8080, function () {
     const port = server.address().port;
